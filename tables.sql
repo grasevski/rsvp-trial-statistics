@@ -1,12 +1,13 @@
 -- Temporary tables, containing the relevant subset of information
 -- from the rsvp database
 
-@@definitions.sql;
+@@definitions.sql
 
 -- Delete existing tables
 drop table temp_impression purge;
 drop table temp_click purge;
 drop table temp_kiss purge;
+drop table temp_channel purge;
 drop table temp_user purge;
 drop table temp_bool purge;
 drop table temp_rule purge;
@@ -15,32 +16,43 @@ drop table temp_rule purge;
 create table temp_user (
   userid integer primary key,
   gender integer not null,
-  rule integer not null,
   isrecommendee integer not null
 );
 
 -- Table of candidate users
 create table temp_impression (
-  targetuserid integer references temp_user(userid),
-  rule integer,
-  primary key (targetuserid, rule)
+  impressionid integer primary key,
+  userid integer not null references temp_user(userid),
+  targetuserid integer not null references temp_user(userid),
+  placement integer not null,
+  created timestamp not null
 );
 
 -- Recommendation clicks
 create table temp_click (
   clickid integer primary key,
-  initiatinguserid integer not null references temp_user(userid),
+  userid integer not null references temp_user(userid),
   targetuserid integer not null references temp_user(userid),
-  created date not null
+  placement integer not null,
+  created timestamp not null
 );
 
 -- Kisses during the trial period
 create table temp_kiss (
   kissid integer primary key,
-  initiatinguserid integer not null references temp_user(userid),
+  userid integer not null references temp_user(userid),
   targetuserid integer not null references temp_user(userid),
-  reply integer not null,
-  created date not null
+  positivereply integer,
+  created timestamp not null,
+  replydate timestamp
+);
+
+-- Channels during the trial period
+create table temp_channel (
+  channelid integer primary key,
+  userid integer not null references temp_user(userid),
+  targetuserid integer not null references temp_user(userid),
+  created timestamp not null
 );
 
 -- These tables are used to generate all combinations

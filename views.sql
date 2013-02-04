@@ -2,52 +2,76 @@
 
 @@definitions;
 
--- Delete existing temporary views
-drop view rulegroup;
-drop view lhs2rhs0;
-drop view lhs2rhs1;
-drop view lhs2q;
-drop view p2rhs;
-
 -- Combinations of rule, genders etc
-create view rulegroup as
+create or replace view rulegroup as
 select rule, c.boolid c, g1.boolid+134 gender1, g2.boolid+134 gender2
 from temp_rule, temp_bool c, temp_bool g1, temp_bool g2;
 
 -- lhs2rhs kiss interactions for non-recommendees
-create view lhs2rhs0 as
-select reply, u1.rule r, u1.gender g1, u2.gender g2, u1.userid u, u2.userid t, case when i.targetuserid is not null then 1 else 0 end c
-from temp_kiss
-join temp_user u1 on u1.userid=initiatinguserid
+create or replace view lhs2rhs0 as
+select positivereply, mod(u1.userid, 10) r, u1.gender g1, u2.gender g2, u1.userid u, u2.userid t, case when i.t is not null then 1 else 0 end c
+from temp_kiss k
+join temp_user u1 on u1.userid=k.userid
 join temp_user u2 on u2.userid=targetuserid
-left join temp_impression i on i.targetuserid=u2.userid
-  and i.rule=u1.rule
+left join (select distinct mod(userid, 10) rule, targetuserid t
+  from temp_impression) i
+on i.t=u2.userid and rule = mod(u1.userid, 10)
 where u1.isrecommendee = 0;
 
 -- lhs2rhs kiss interactions for recommendees
-create view lhs2rhs1 as
-select reply, u1.rule r, u1.gender g1, u2.gender g2, u1.userid u, u2.userid t, case when c.targetuserid is not null then 1 else 0 end c
+create or replace view lhs2rhs1 as
+select positivereply, mod(u1.userid, 10) r, u1.gender g1, u2.gender g2, u1.userid u, u2.userid t, case when c.targetuserid is not null then 1 else 0 end c
 from temp_kiss k
-join temp_user u1 on u1.userid=k.initiatinguserid
+join temp_user u1 on u1.userid=k.userid
 join temp_user u2 on u2.userid=k.targetuserid
-left join (select initiatinguserid, targetuserid, min(created) c
-  from temp_click group by initiatinguserid, targetuserid) c
-on c.initiatinguserid=u1.userid
+left join (select userid, targetuserid, min(created) c
+  from temp_click group by userid, targetuserid) c
+on c.userid=u1.userid
   and c.targetuserid=u2.userid
   and c.c < k.created;
 
 -- lhs2q kiss interactions
-create view lhs2q as
-select reply, u1.rule r, u1.gender g1, u2.gender g2, u2.isrecommendee c, u1.userid u, u2.userid t
-from temp_kiss
-join temp_user u1 on u1.userid=initiatinguserid
+create or replace view lhs2q as
+select positivereply, mod(u1.userid, 10) r, u1.gender g1, u2.gender g2, u2.isrecommendee c, u1.userid u, u2.userid t
+from temp_kiss k
+join temp_user u1 on u1.userid=k.userid
 join temp_user u2 on u2.userid=targetuserid;
 
 -- p2rhs kiss interactions
-create view p2rhs as
-select reply, u1.rule r, u1.gender g1, u2.gender g2, u1.userid u, u2.userid t, case when i.targetuserid is not null then 1 else 0 end c
-from temp_kiss
-join temp_user u1 on u1.userid=initiatinguserid
+create or replace view p2rhs as
+select positivereply, mod(u1.userid, 10) r, u1.gender g1, u2.gender g2, u1.userid u, u2.userid t, case when i.t is not null then 1 else 0 end c
+from temp_kiss k
+join temp_user u1 on u1.userid=k.userid
 join temp_user u2 on u2.userid=targetuserid
-left join temp_impression i on i.targetuserid=u2.userid
-  and i.rule=u1.rule;
+left join (select distinct mod(userid, 10) rule, targetuserid t
+  from temp_impression) i
+on i.t=u2.userid and rule = mod(u1.userid, 10);
+
+
+create or replace view rg as
+select r.rule rule, w.rule week, boolid+134 gender, p.rule placement
+from temp_rule r, temp_rule w, temp_bool, temp_rule p
+where w.rule between 1 and 6 and p.rule < 4;
+
+create or replace view temp_unique_impression as
+select userid, targetuserid, placement, min(created) c
+from temp_impression group by userid, targetuserid, placement;
+
+create or replace view temp_unique_click as
+select userid, targetuserid, placement, min(created) c
+from temp_click group by userid, targetuserid, placement;
+
+create or replace function getweek(t in timestamp) return integer as
+begin
+  return trunc(extract(day from t - &trial_start_date)/7) + 1;
+end;
+.
+/
+
+create or replace function interval2float
+(t in interval day to second) return float as begin
+  return extract(day from t) + (extract(hour from t)
+      + (extract(minute from t) + extract(second from t)/60)/60)/24;
+end;
+.
+/

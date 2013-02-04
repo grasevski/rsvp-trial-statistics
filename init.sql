@@ -5,7 +5,7 @@
 
 -- Assume the user's rule number is their userid mod 10
 insert into temp_user
-select userid, gender_prid, mod(userid, 10), case when u is not null then 1 else 0 end
+select userid, gender_prid, case when u is not null then 1 else 0 end
 from &account_table left join (
   select distinct userid u from &impressions
   where created between &trial_start_date and &trial_end_date
@@ -14,20 +14,34 @@ from &account_table left join (
 
 -- Only target userid and rule are important for the calculations
 insert into temp_impression
-select distinct targetuserid, rule from &impressions
-where created between &trial_start_date and &trial_end_date;
+select x.id, u1.userid, u2.userid, placement, created
+from &impressions x
+join temp_user u1 on u1.userid=x.userid
+join temp_user u2 on u2.userid=targetuserid
+where rule = mod(u1.userid, 10)
+  and created between &trial_start_date and &currenttime;
 
 -- Recommendation clicks which occured during the trial period
 insert into temp_click
-select id, u1.userid, u2.userid, created from &clicks c
-join temp_user u1 on u1.userid=c.userid
+select x.id, u1.userid, u2.userid, placement, created
+from &clicks x
+join temp_user u1 on u1.userid=x.userid
 join temp_user u2 on u2.userid=targetuserid
-where created between &trial_start_date and &currenttime;
+where rule = mod(u1.userid, 10)
+  and created between &trial_start_date and &currenttime;
 
 -- Kisses which occured during the trial period
 insert into temp_kiss
-select k.id, initiatinguserid, targetuserid, case when positivereply = 1 then 1 else 0 end, k.created
-from &kiss_table k left join &reply_table r on r.id=replymessageid
+select k.id, u1.userid, u2.userid, positivereply, k.created, k.replydate
+from &kiss_table k
 join temp_user u1 on u1.userid=initiatinguserid
 join temp_user u2 on u2.userid=targetuserid
+left join &reply_table r on r.id=replymessageid
 where k.created between &trial_start_date and &currenttime;
+
+-- Channels which were opened during the trial period
+insert into temp_channel
+select channelid, u1.userid, u2.userid, opendate from &channel_table
+join temp_user u1 on u1.userid=initiatinguserid
+join temp_user u2 on u2.userid=targetuserid
+where opendate between &trial_start_date and &currenttime;
