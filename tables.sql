@@ -4,6 +4,7 @@
 @@definitions.sql
 
 -- Delete existing tables
+drop table temp_recom purge;
 drop table temp_impression purge;
 drop table temp_click purge;
 drop table temp_kiss purge;
@@ -17,6 +18,14 @@ create table temp_user (
   userid integer primary key,
   gender integer not null,
   isrecommendee integer not null
+);
+
+-- Table of generated recommendations
+create table temp_recom (
+  recomid integer primary key,
+  userid integer not null references temp_user(userid),
+  targetuserid integer not null references temp_user(userid),
+  created timestamp not null
 );
 
 -- Table of candidate users

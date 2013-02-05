@@ -1,13 +1,24 @@
--- #recommendations delivered (impressions)
-
+-- Global constants
 def groupings='rule, week, gender, placement'
-def measures='count(r) delivered'
-def fields='r, created, u1.gender g, placement p'
-def tbl=temp_impression
+
+-- #recommendations generated
+
+def measures='count(r) generated'
+def fields='r, created, u1.gender g'
+def tbl=temp_recom
 def aux=''
 def cond=''
-def joins='r=rule and getweek(created)=week and g=gender and p=placement'
+def joins='r=rule and getweek(created)=week and g=gender'
 def grp=''
+
+@@query.sql
+
+-- #recommendations delivered (impressions)
+
+def measures='count(r) delivered'
+def fields='&fields, placement p'
+def tbl=temp_impression
+def joins='&joins and p=placement'
 
 @@query.sql
 
@@ -93,14 +104,26 @@ def joins='&joins and p=placement'
 
 @@query.sql
 
+-- days from recommendation to impression
+
+def measures='avg(t) avgr2i, median(t) medr2i, stddev(t) stdr2i'
+def fields='x.userid, x.targetuserid, r, u1.gender g, interval2float(x.created-y.c) t, min(x.created) created'
+def tbl=temp_impression
+def aux='join temp_unique_recom y on y.userid=x.userid and y.targetuserid=x.targetuserid'
+def cond='and y.c < x.created'
+def grp='group by x.userid, x.targetuserid, r, u1.gender, x.created-y.c'
+def joins='r=rule and getweek(created) = week and g=gender'
+
+@@query.sql
+
 -- days from impression to click
 
 def measures='avg(t) avgi2c, median(t) medi2c, stddev(t) stdi2c'
 def fields='x.userid, x.targetuserid, r, u1.gender g, y.placement p, interval2float(x.created-y.c) t, min(x.created) created'
 def tbl=temp_click
 def aux='join temp_unique_impression y on y.userid=x.userid and y.targetuserid=x.targetuserid and y.placement=x.placement'
-def cond='and y.c < x.created'
 def grp='group by x.userid, x.targetuserid, r, u1.gender, y.placement, x.created-y.c'
+def joins='&joins and p=placement'
 
 @@query.sql
 

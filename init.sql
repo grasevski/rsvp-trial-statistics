@@ -12,7 +12,15 @@ from &account_table left join (
 ) on u=userid where creationdate < &trial_end_date
   and hlastaction > trunc(&trial_start_date - &interval_days);
 
--- Only target userid and rule are important for the calculations
+-- Recommendations which occurred during the trial period
+insert into temp_recom
+select null, u1.userid, u2.userid, created from &recom x
+join temp_user u1 on u1.userid=x.userid
+join temp_user u2 on u2.userid=targetuserid
+where rule = mod(u1.userid, 10)
+  and created between &trial_start_date and &currenttime;
+
+-- Recommendation impressions which occurred during the trial period
 insert into temp_impression
 select x.id, u1.userid, u2.userid, placement, created
 from &impressions x
@@ -21,7 +29,7 @@ join temp_user u2 on u2.userid=targetuserid
 where rule = mod(u1.userid, 10)
   and created between &trial_start_date and &currenttime;
 
--- Recommendation clicks which occured during the trial period
+-- Recommendation clicks which occurred during the trial period
 insert into temp_click
 select x.id, u1.userid, u2.userid, placement, created
 from &clicks x

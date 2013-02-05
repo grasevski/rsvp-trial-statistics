@@ -55,6 +55,12 @@ select r.rule rule, w.rule week, boolid+134 gender, p.rule placement
 from temp_rule r, temp_rule w, temp_bool, temp_rule p
 where w.rule between 1 and 6 and p.rule < 4;
 
+-- These recommendations are used for the "days from recommendation
+-- to impression" calculations
+create or replace view temp_unique_recom as
+select userid, targetuserid, min(created) c
+from temp_recom group by userid, targetuserid;
+
 -- These impressions are used for the "days from impression to x"
 -- calculations
 create or replace view temp_unique_impression as
