@@ -25,6 +25,7 @@ create table temp_recom (
   recomid integer primary key,
   userid integer not null references temp_user(userid),
   targetuserid integer not null references temp_user(userid),
+  score integer not null,
   created timestamp not null
 );
 
@@ -33,6 +34,7 @@ create table temp_impression (
   impressionid integer primary key,
   userid integer not null references temp_user(userid),
   targetuserid integer not null references temp_user(userid),
+  score integer not null,
   placement integer not null,
   created timestamp not null
 );
@@ -42,6 +44,7 @@ create table temp_click (
   clickid integer primary key,
   userid integer not null references temp_user(userid),
   targetuserid integer not null references temp_user(userid),
+  score integer not null,
   placement integer not null,
   created timestamp not null
 );
@@ -83,3 +86,5 @@ insert into temp_rule values (6);
 insert into temp_rule values (7);
 insert into temp_rule values (8);
 insert into temp_rule values (9);
+
+commit;

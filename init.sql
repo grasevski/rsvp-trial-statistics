@@ -14,7 +14,7 @@ from &account_table left join (
 
 -- Recommendations which occurred during the trial period
 insert into temp_recom
-select null, u1.userid, u2.userid, created from &recom_table x
+select u1.userid, u2.userid, score, created from &recom_table x
 join temp_user u1 on u1.userid=x.userid
 join temp_user u2 on u2.userid=targetuserid
 where rule = mod(u1.userid, 10)
@@ -22,7 +22,7 @@ where rule = mod(u1.userid, 10)
 
 -- Recommendation impressions which occurred during the trial period
 insert into temp_impression
-select x.id, u1.userid, u2.userid, placement, created
+select x.id, u1.userid, u2.userid, score, placement, created
 from &impressions x
 join temp_user u1 on u1.userid=x.userid
 join temp_user u2 on u2.userid=targetuserid
@@ -31,7 +31,7 @@ where rule = mod(u1.userid, 10)
 
 -- Recommendation clicks which occurred during the trial period
 insert into temp_click
-select x.id, u1.userid, u2.userid, placement, created
+select x.id, u1.userid, u2.userid, score, placement, created
 from &clicks x
 join temp_user u1 on u1.userid=x.userid
 join temp_user u2 on u2.userid=targetuserid
@@ -53,3 +53,5 @@ select channelid, u1.userid, u2.userid, opendate from &channel_table
 join temp_user u1 on u1.userid=initiatinguserid
 join temp_user u2 on u2.userid=targetuserid
 where opendate between &trial_start_date and &currenttime;
+
+commit;

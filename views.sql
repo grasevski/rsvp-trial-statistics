@@ -89,3 +89,5 @@ create or replace function interval2float
 end;
 .
 /
+
+commit;
