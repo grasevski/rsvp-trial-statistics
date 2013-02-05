@@ -1,7 +1,7 @@
 -- initialize and populate the temporary tables and views
 
-@@tables.sql;
-@@views.sql;
+@@tables.sql
+@@views.sql
 
 -- Assume the user's rule number is their userid mod 10
 insert into temp_user
@@ -14,7 +14,7 @@ from &account_table left join (
 
 -- Recommendations which occurred during the trial period
 insert into temp_recom
-select null, u1.userid, u2.userid, created from &recom x
+select null, u1.userid, u2.userid, created from &recom_table x
 join temp_user u1 on u1.userid=x.userid
 join temp_user u2 on u2.userid=targetuserid
 where rule = mod(u1.userid, 10)

@@ -9,6 +9,7 @@ define max_final_rank=50
 -- this is 2 weeks after trial for result collection
 define currenttime=to_date('27jun12')
 
+define recom_table=RSVP_0612.Recommendation
 define positive_reply_table=RSVP_0612.CRC_POSITIVE_REPLIES
 define reply_table=RSVP_0612.KISSREPLYMESSAGE
 define account_table=RSVP_0612.UA_USERACCOUNT

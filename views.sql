@@ -1,6 +1,6 @@
 -- Temporary views are used to simplify queries
 
-@@definitions;
+@@definitions
 
 -- Combinations of rule, genders etc
 create or replace view rulegroup as

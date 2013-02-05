@@ -155,6 +155,14 @@ def cond='and positivereply = 1'
 
 @@query.sql
 
+-- days from contact sent to negative reply received
+-- (only for not null replies)
+
+def measures='avg(t) avgc2k_t, median(t) medc2k_t, stddev(t) stdc2k_t'
+def cond='and positivereply = 0'
+
+@@query.sql
+
 -- days from impression to channel opened
 
 def measures='avg(t) avgi2ch, median(t) medi2ch, stddev(t) stdi2ch'
