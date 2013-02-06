@@ -1,5 +1,6 @@
 -- trial 2 definitions
 
+define evaluation_start_date=to_date('01feb12')
 define trial_start_date=to_date('30apr12')
 -- 11 june 2012
 define trial_end_date=to_date('12jun12')

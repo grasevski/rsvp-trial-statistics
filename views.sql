@@ -55,6 +55,12 @@ select r.rule rule, w.rule week, boolid+134 gender, p.rule placement
 from temp_rule r, temp_rule w, temp_bool, temp_rule p
 where w.rule between 1 and 6 and p.rule < 4;
 
+-- Groupings for the contacts data
+create or replace view rg2 as
+select r.rule rule, boolid+134 gender, w.rule week
+from temp_rule r, temp_bool, temp_rule w
+where w.rule between 1 and 6;
+
 -- These recommendations are used for the "days from recommendation
 -- to impression" calculations
 create or replace view temp_unique_recom as
@@ -71,6 +77,15 @@ from temp_impression group by userid, targetuserid, placement;
 create or replace view temp_unique_click as
 select userid, targetuserid, placement, min(created) c
 from temp_click group by userid, targetuserid, placement;
+
+-- Earliest clicks including scores
+create or replace view clickscores as select u, t, c, score from (
+  select c.userid u, c.targetuserid t, max(c.created) c
+  from temp_click c join temp_kiss k on k.userid=c.userid
+    and k.targetuserid=c.targetuserid
+    and c.created < k.created
+  group by c.userid, c.targetuserid
+) join temp_click on userid=u and targetuserid=t and created=c;
 
 -- Returns the trial week of the given time
 create or replace function getweek(t in timestamp) return integer as
