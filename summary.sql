@@ -106,7 +106,7 @@ def joins='&joins and p=placement'
 
 -- days from recommendation to impression
 
-def measures='avg(t) avgr2i, median(t) medr2i, stddev(t) stdr2i'
+def measures='nvl(avg(t), 0) avgr2i, nvl(median(t), 0) medr2i, nvl(stddev(t), 0) stdr2i'
 def fields='x.userid, x.targetuserid, r, u1.gender g, interval2float(x.created-y.c) t, min(x.created) created'
 def tbl=temp_impression
 def aux='join temp_unique_recom y on y.userid=x.userid and y.targetuserid=x.targetuserid'
@@ -118,7 +118,7 @@ def joins='r=rule and getweek(created) = week and g=gender'
 
 -- days from impression to click
 
-def measures='avg(t) avgi2c, median(t) medi2c, stddev(t) stdi2c'
+def measures='nvl(avg(t), 0) avgi2c, nvl(median(t), 0) medi2c, nvl(stddev(t), 0) stdi2c'
 def fields='x.userid, x.targetuserid, r, u1.gender g, y.placement p, interval2float(x.created-y.c) t, min(x.created) created'
 def tbl=temp_click
 def aux='join temp_unique_impression y on y.userid=x.userid and y.targetuserid=x.targetuserid and y.placement=x.placement'
@@ -129,7 +129,7 @@ def joins='&joins and p=placement'
 
 -- days from click to contact sent
 
-def measures='avg(t) avgc2k, median(t) medc2k, stddev(t) stdc2k'
+def measures='nvl(avg(t), 0) avgc2k, nvl(median(t), 0) medc2k, nvl(stddev(t), 0) stdc2k'
 def tbl=temp_kiss
 def aux='join temp_unique_click y on y.userid=x.userid and y.targetuserid=x.targetuserid'
 
@@ -138,7 +138,7 @@ def aux='join temp_unique_click y on y.userid=x.userid and y.targetuserid=x.targ
 -- days from contact sent to reply received
 -- (only for not null replies)
 
-def measures='avg(t) avgk2r, median(t) medk2r, stddev(t) stdk2r'
+def measures='nvl(avg(t), 0) avgk2r, nvl(median(t), 0) medk2r, nvl(stddev(t), 0) stdk2r'
 def fields='x.userid, x.targetuserid, r, created, u1.gender g, interval2float(replydate-created) t'
 def aux=''
 def cond='and positivereply is not null'
@@ -150,7 +150,7 @@ def joins='r=rule and getweek(created) = week and g=gender'
 -- days from contact sent to positive reply received
 -- (only for not null replies)
 
-def measures='avg(t) avgc2k_t, median(t) medc2k_t, stddev(t) stdc2k_t'
+def measures='nvl(avg(t), 0) avgc2k_t, nvl(median(t), 0) medc2k_t, nvl(stddev(t), 0) stdc2k_t'
 def cond='and positivereply = 1'
 
 @@query.sql
@@ -158,14 +158,14 @@ def cond='and positivereply = 1'
 -- days from contact sent to negative reply received
 -- (only for not null replies)
 
-def measures='avg(t) avgc2k_t, median(t) medc2k_t, stddev(t) stdc2k_t'
+def measures='nvl(avg(t), 0) avgc2k_t, nvl(median(t), 0) medc2k_t, nvl(stddev(t), 0) stdc2k_t'
 def cond='and positivereply = 0'
 
 @@query.sql
 
 -- days from impression to channel opened
 
-def measures='avg(t) avgi2ch, median(t) medi2ch, stddev(t) stdi2ch'
+def measures='nvl(avg(t), 0) avgi2ch, nvl(median(t), 0) medi2ch, nvl(stddev(t), 0) stdi2ch'
 def fields='x.userid, x.targetuserid, r, u1.gender g, placement p, interval2float(x.created-y.c) t, min(x.created) created'
 def tbl=temp_channel
 def aux='join temp_unique_impression y on y.userid=x.userid and y.targetuserid=x.targetuserid'

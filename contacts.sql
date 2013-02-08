@@ -2,7 +2,7 @@
 
 -- Number of contacts for a user (M, F) per week in evaluation
 -- period, avg, median, stddev
-select rule, gender, week, avg(kiss) avgkiss, median(kiss) medkiss, stddev(kiss) stdkiss
+select rule, gender, week, nvl(avg(kiss), 0) avgkiss, nvl(median(kiss), 0) medkiss, nvl(stddev(kiss), 0) stdkiss
 from rg2 left join (
   select r, u1.gender g, u1.userid u, getweek(k.created) w, count(*) kiss
   from &kiss_table k
@@ -15,7 +15,7 @@ from rg2 left join (
 group by rule, gender, week order by rule, gender, week;
 
 -- Count of positive kisses as above
-select rule, gender, week, avg(kiss) avgkiss, median(kiss) medkiss, stddev(kiss) stdkiss
+select rule, gender, week, nvl(avg(kiss), 0) avgkiss, nvl(median(kiss), 0) medkiss, nvl(stddev(kiss), 0) stdkiss
 from rg2 left join (
   select r, u1.gender g, u1.userid u, getweek(k.created) w, count(*) kiss
   from &kiss_table k
@@ -31,7 +31,7 @@ group by rule, gender, week order by rule, gender, week;
 
 -- Number of contacts for a user (M, F) per week in trial
 -- period, avg, median, stddev
-select rule, gender, week, avg(kiss) avgkiss, median(kiss) medkiss, stddev(kiss) stdkiss
+select rule, gender, week, nvl(avg(kiss), 0) avgkiss, nvl(median(kiss), 0) medkiss, nvl(stddev(kiss), 0) stdkiss
 from rg2 left join (
   select u.userid, r, gender g, getweek(created) w, count(*) kiss
   from temp_kiss k join userrule u on u.userid=k.userid
@@ -40,7 +40,7 @@ from rg2 left join (
 group by rule, gender, week order by rule, gender, week;
 
 -- Count of positive kisses as above
-select rule, gender, week, avg(kiss) avgkiss, median(kiss) medkiss, stddev(kiss) stdkiss
+select rule, gender, week, nvl(avg(kiss), 0) avgkiss, nvl(median(kiss), 0) medkiss, nvl(stddev(kiss), 0) stdkiss
 from rg2 left join (
   select u.userid, r, gender g, getweek(created) w, count(*) kiss
   from temp_kiss k join userrule u on u.userid=k.userid
