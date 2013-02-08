@@ -24,7 +24,7 @@ select rule, gender, isrecommendee, iscandidate, count(ur) pool
 from (
   select rule, g.boolid+134 gender, r.boolid isrecommendee, c.boolid iscandidate
   from temp_rule, temp_bool g, temp_bool r, temp_bool c
-) r left join (
+) left join (
   select u.r ur, gender g, isrecommendee r, case when targetuserid is not null then 1 else 0 end c
   from userrule u left join candidates on rule=u.r
 ) on ur=rule and g=gender and r=isrecommendee and c=iscandidate

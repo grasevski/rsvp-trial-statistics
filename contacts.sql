@@ -1,3 +1,5 @@
+@@definitions.sql
+
 -- Number of contacts for a user (M, F) per week in evaluation
 -- period, avg, median, stddev
 select rule, gender, week, avg(kiss) avgkiss, median(kiss) medkiss, stddev(kiss) stdkiss
@@ -8,7 +10,7 @@ from rg2 left join (
   join temp_user u2 on u2.userid=targetuserid
   left join &reply_table r on r.id=replymessageid
   where k.created between &evaluation_start_date and &trial_start_date
-  group by r, u1.gender, userid, getweek(k.created)
+  group by r, u1.gender, u1.userid, getweek(k.created)
 ) on r=rule and g=gender and w=week
 group by rule, gender, week order by rule, gender, week;
 
@@ -22,7 +24,7 @@ from rg2 left join (
   left join &reply_table r on r.id=replymessageid
   where k.created between &evaluation_start_date and &trial_start_date
     and positivereply = 1
-  group by r, u1.gender, userid, getweek(k.created)
+  group by r, u1.gender, u1.userid, getweek(k.created)
 ) on r=rule and g=gender and w=week
 group by rule, gender, week order by rule, gender, week;
 
@@ -33,7 +35,7 @@ select rule, gender, week, avg(kiss) avgkiss, median(kiss) medkiss, stddev(kiss)
 from rg2 left join (
   select u.userid, r, gender g, getweek(created) w, count(*) kiss
   from temp_kiss k join userrule u on u.userid=k.userid
-  group by u.userid, r, gender getweek(created)
+  group by u.userid, r, gender, getweek(created)
 ) on r=rule and g=gender and w=week
 group by rule, gender, week order by rule, gender, week;
 
@@ -43,6 +45,6 @@ from rg2 left join (
   select u.userid, r, gender g, getweek(created) w, count(*) kiss
   from temp_kiss k join userrule u on u.userid=k.userid
   where positivereply = 1
-  group by u.userid, r, gender getweek(created)
+  group by u.userid, r, gender, getweek(created)
 ) on r=rule and g=gender and w=week
 group by rule, gender, week order by rule, gender, week;

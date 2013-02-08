@@ -65,6 +65,9 @@ final class RsvpScore {
             final ResultSet rs = st.executeQuery();
             while (rs.next())
               out.println(rs.getInt(1) + "," + rs.getInt(2));
+            try {bw.close();} catch (final IOException e) {
+              throw new RuntimeException(e);
+            }
           }
         }
       }
