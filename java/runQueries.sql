@@ -7,3 +7,4 @@ spool contacts
 @@../contacts.sql
 spool trial2
 @@../trial2.sql
+quit

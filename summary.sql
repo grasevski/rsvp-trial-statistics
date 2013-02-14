@@ -150,7 +150,7 @@ def joins='r=rule and getweek(created) = week and g=gender'
 -- days from contact sent to positive reply received
 -- (only for not null replies)
 
-def measures='nvl(avg(t), 0) avgc2k_t, nvl(median(t), 0) medc2k_t, nvl(stddev(t), 0) stdc2k_t'
+def measures='nvl(avg(t), 0) avgk2r_t, nvl(median(t), 0) medk2r_t, nvl(stddev(t), 0) stdk2r_t'
 def cond='and positivereply = 1'
 
 @@query.sql
@@ -158,7 +158,7 @@ def cond='and positivereply = 1'
 -- days from contact sent to negative reply received
 -- (only for not null replies)
 
-def measures='nvl(avg(t), 0) avgc2k_t, nvl(median(t), 0) medc2k_t, nvl(stddev(t), 0) stdc2k_t'
+def measures='nvl(avg(t), 0) avgk2r_f, nvl(median(t), 0) medk2r_f, nvl(stddev(t), 0) stdk2r_f'
 def cond='and positivereply = 0'
 
 @@query.sql

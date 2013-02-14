@@ -59,3 +59,5 @@ join temp_user u2 on u2.userid=targetuserid
 where opendate between &trial_start_date and &currenttime;
 
 commit;
+
+quit

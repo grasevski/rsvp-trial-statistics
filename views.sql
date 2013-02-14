@@ -79,7 +79,7 @@ select userid, targetuserid, placement, min(created) c
 from temp_click group by userid, targetuserid, placement;
 
 -- Earliest clicks including scores
-create or replace view clickscores as select u, t, c, score from (
+create or replace view clickscore as select u, t, c, score from (
   select c.userid u, c.targetuserid t, max(c.created) c
   from temp_click c join temp_kiss k on k.userid=c.userid
     and k.targetuserid=c.targetuserid
