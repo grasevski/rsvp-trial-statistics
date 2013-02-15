@@ -135,6 +135,18 @@ from rule left join (select x.userid u, targetuserid t, r
 select &groupings, &measures from (select distinct &groupings from
   &grouptables)
 
+def groupings='rule, gender'
+def groupingtables='rule, gender, placement'
+def fields='x.userid u, targetuserid t, r, u1.gender g'
+def aux=''
+def grp=''
+def joins='r=rule and g=gender'
+
+def x=temp_recom
+@@tailStats.sql
+def x=temp_impression
+@@tailStats.sql
+
 
 def groupings='rule, gender'
 def measures='count(distinct u) nLHS_New2New, count(distinct t) nRHS_New2New, count(*) New2New'

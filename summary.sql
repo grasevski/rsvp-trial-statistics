@@ -107,31 +107,30 @@ def joins='&joins and p=placement'
 -- days from recommendation to impression
 
 def measures='nvl(avg(t), 0) avgr2i, nvl(median(t), 0) medr2i, nvl(stddev(t), 0) stdr2i'
-def fields='x.userid, x.targetuserid, r, u1.gender g, interval2float(x.created-y.c) t, min(x.created) created'
+def fields='x.userid, x.targetuserid, r, u1.gender g, x.placement p, interval2float(x.created-y.c) t, min(x.created) created'
 def tbl=temp_impression
 def aux='join temp_unique_recom y on y.userid=x.userid and y.targetuserid=x.targetuserid'
 def cond='and y.c < x.created'
-def grp='group by x.userid, x.targetuserid, r, u1.gender, x.created-y.c'
-def joins='r=rule and getweek(created) = week and g=gender'
+def grp='group by x.userid, x.targetuserid, r, u1.gender, x.placement, x.created-y.c'
 
 @@query.sql
 
 -- days from impression to click
 
 def measures='nvl(avg(t), 0) avgi2c, nvl(median(t), 0) medi2c, nvl(stddev(t), 0) stdi2c'
-def fields='x.userid, x.targetuserid, r, u1.gender g, y.placement p, interval2float(x.created-y.c) t, min(x.created) created'
 def tbl=temp_click
 def aux='join temp_unique_impression y on y.userid=x.userid and y.targetuserid=x.targetuserid and y.placement=x.placement'
-def grp='group by x.userid, x.targetuserid, r, u1.gender, y.placement, x.created-y.c'
-def joins='&joins and p=placement'
 
 @@query.sql
 
 -- days from click to contact sent
 
 def measures='nvl(avg(t), 0) avgc2k, nvl(median(t), 0) medc2k, nvl(stddev(t), 0) stdc2k'
+def fields='x.userid, x.targetuserid, r, u1.gender g, interval2float(x.created-y.c) t, min(x.created) created'
 def tbl=temp_kiss
 def aux='join temp_unique_click y on y.userid=x.userid and y.targetuserid=x.targetuserid'
+def grp='group by x.userid, x.targetuserid, r, u1.gender, x.created-y.c'
+def joins='r=rule and getweek(created) = week and g=gender'
 
 @@query.sql
 
@@ -143,7 +142,6 @@ def fields='x.userid, x.targetuserid, r, created, u1.gender g, interval2float(re
 def aux=''
 def cond='and positivereply is not null'
 def grp=''
-def joins='r=rule and getweek(created) = week and g=gender'
 
 @@query.sql
 
