@@ -1,0 +1,6 @@
+clicked,tail_clicked
+kissed,tail_kissed
+kissed_t,tail_kissed_t
+channeled,tail_channeled
+delivered,tail_delivered
+generated,tail_generated
