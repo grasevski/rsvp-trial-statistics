@@ -1,10 +1,10 @@
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,10 +23,7 @@ final class RsvpScore {
 
   public static void main(final String[] args) {
     final String conStr = "jdbc:oracle:thin:@SMARTR510-SERV1:1521:orcl";
-    final String filename = "out/%s_%d_%d.csv";
-    final int MIN_GROUP = Integer.parseInt(args[2]);
-    final int MAX_GROUP = Integer.parseInt(args[3]);
-    final int MIN_WEEK = 1, MAX_WEEK = 6;
+    final String filename = args[2] + "/%s_%d_%d_%d.csv";
     final List<RsvpQuery> queries = new ArrayList<RsvpQuery>();
     final Scanner sc = new Scanner(System.in);
     while (sc.hasNextLine()) {
@@ -46,30 +43,32 @@ final class RsvpScore {
     }
     try {
       final Connection con = DriverManager.getConnection(conStr, args[0], args[1]);
+      final Statement st = con.createStatement();
       for (RsvpQuery query : queries) {
-        final PreparedStatement st = con.prepareStatement(query.st);
         System.out.println(query.name);
-        for (int i=MIN_GROUP; i<=MAX_GROUP; ++i) {
-          System.out.println("  " + i);
-          st.setInt(1, i);
-          for (int j=MIN_WEEK; j<=MAX_WEEK; ++j) {
-            System.out.println("    " + j);
-            final String f = String.format(filename, query.name, i, j);
-            BufferedWriter bw = null;
-            try {bw = new BufferedWriter(new FileWriter(f));}
-            catch (final IOException e) {
+        final ResultSet rs = st.executeQuery(query.st);
+        int gender = -1, week = -1, rule = -1;
+        PrintWriter out = null;
+        BufferedWriter bw = null;
+        while (rs.next()) {
+          final int g=rs.getInt(1), w=rs.getInt(2), r=rs.getInt(3);
+          if (g != gender || w != week || r != rule) {
+            final String f = String.format(filename, query.name, g, w, r);
+            gender = g;
+            week = w;
+            rule = r;
+            try {
+              if (bw != null) bw.close();
+              bw = new BufferedWriter(new FileWriter(f));
+            } catch (final IOException e) {
               throw new RuntimeException(e);
             }
-            final PrintWriter out = new PrintWriter(bw);
-            st.setInt(2, j);
-            final ResultSet rs = st.executeQuery();
-            while (rs.next())
-              out.println(rs.getInt(1) + "," + rs.getInt(2));
-            try {bw.close();} catch (final IOException e) {
-              throw new RuntimeException(e);
-            }
+            out = new PrintWriter(bw);
           }
+          out.println(rs.getInt(4) + "," + rs.getInt(5));
         }
+        if (bw != null) try {bw.close();}
+        catch (final IOException e) {throw new RuntimeException(e);}
       }
     } catch (final SQLException e) {throw new RuntimeException(e);}
   }

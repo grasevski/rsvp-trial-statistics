@@ -1,6 +1,8 @@
 -- Temporary views are used to simplify queries
+-- NB MUST BE RUN WHENEVER DEFINITIONS CHANGE! Otherwise they will
+-- be referring to the wrong parameters.
 
-@@definitions
+@@definitions.sql
 
 -- Combinations of rule, genders etc
 create or replace view rulegroup as
@@ -9,7 +11,7 @@ from temp_rule, temp_bool c, temp_bool g1, temp_bool g2;
 
 -- Users plus their rules, for convenience
 create or replace view userrule as
-select userid, gender, isrecommendee, mod(userid, 10) r
+select userid, gender, isrecommendee, created, mod(userid, 10) r
 from temp_user;
 
 -- Distinct pairings of rules and targetuserids, for convenience

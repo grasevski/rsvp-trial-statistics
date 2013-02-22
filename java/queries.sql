@@ -1,26 +1,35 @@
 --click
-select score, count(*) numClick from temp_click x
-join temp_user u on u.userid=x.userid
-where gender = ? and getweek(created) = ?
-group by score order by score;
+select gender, getweek(x.created), r, score, count(*)
+from temp_click x join userrule u on u.userid=x.userid
+group by gender, getweek(x.created), r, score
+order by gender, getweek(x.created), r, score;
 
 --kiss
-select score, count(*) numKiss from temp_kiss x
-join temp_user u on u.userid=x.userid
-join clickscores on u=x.userid and t=x.targetuserid and c < created
-where gender = ? and getweek(created) = ?
-group by score order by score;
+select gender, getweek(x.created), r, score, count(*)
+from temp_kiss x join userrule u on u.userid=x.userid
+join clickscore on u=x.userid and t=x.targetuserid
+where c < x.created
+group by gender, getweek(x.created), r, score
+order by gender, getweek(x.created), r, score;
 
 --kiss_t
-select score, count(*) numKiss_t from temp_kiss x
-join temp_user u on u.userid=x.userid
-join clickscores on u=x.userid and t=x.targetuserid and c < created
-where gender = ? and getweek(created) = ? and positivereply = 1
-group by score order by score;
+select gender, getweek(x.created), r, score, count(*)
+from temp_kiss x join userrule u on u.userid=x.userid
+join clickscore on u=x.userid and t=x.targetuserid
+where c < x.created and positivereply = 1
+group by gender, getweek(x.created), r, score
+order by gender, getweek(x.created), r, score;
 
 --channel
-select score, count(*) numChannel from temp_channel x
-join temp_user u on u.userid=x.userid
-join clickscores on u=x.userid and t=x.targetuserid and c < created
-where gender = ? and getweek(created) = ?
-group by score order by score;
+select gender, getweek(x.created), r, score, count(*)
+from temp_channel x join userrule u on u.userid=x.userid
+join clickscore on u=x.userid and t=x.targetuserid
+where c < x.created
+group by gender, getweek(x.created), r, score
+order by gender, getweek(x.created), r, score;
+
+--impression
+select gender, getweek(x.created), r, score, count(*)
+from temp_impression x join userrule u on u.userid=x.userid
+group by gender, getweek(x.created), r, score
+order by gender, getweek(x.created), r, score;

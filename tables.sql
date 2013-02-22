@@ -17,7 +17,8 @@ drop table temp_rule purge;
 create table temp_user (
   userid integer primary key,
   gender integer not null,
-  isrecommendee integer not null
+  isrecommendee integer not null,
+  created timestamp not null
 );
 
 -- Table of generated recommendations

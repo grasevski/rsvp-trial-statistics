@@ -5,7 +5,7 @@
 
 -- Assume the user's rule number is their userid mod 10
 insert into temp_user
-select userid, gender_prid, case when u is not null then 1 else 0 end
+select userid, gender_prid, case when u is not null then 1 else 0 end, creationdate
 from &account_table left join (
   select distinct userid u from &impressions
   where created between &trial_start_date and &trial_end_date
@@ -17,30 +17,30 @@ create sequence s;
 
 -- Recommendations which occurred during the trial period
 insert into temp_recom
-select s.nextval, u1.userid, u2.userid, score, created
+select s.nextval, u1.userid, u2.userid, score, x.created
 from &recom_table x
 join userrule u1 on u1.userid=x.userid and r=rule
 join temp_user u2 on u2.userid=targetuserid
-where created between &trial_start_date and &currenttime;
+where x.created between &trial_start_date and &currenttime;
 
 -- Remove temporary sequence
 drop sequence s;
 
 -- Recommendation impressions which occurred during the trial period
 insert into temp_impression
-select x.id, u1.userid, u2.userid, score, placement, created
+select x.id, u1.userid, u2.userid, score, placement, x.created
 from &impressions x
 join userrule u1 on u1.userid=x.userid and r=rule
 join temp_user u2 on u2.userid=targetuserid
-where created between &trial_start_date and &currenttime;
+where x.created between &trial_start_date and &currenttime;
 
 -- Recommendation clicks which occurred during the trial period
 insert into temp_click
-select x.id, u1.userid, u2.userid, score, placement, created
+select x.id, u1.userid, u2.userid, score, placement, x.created
 from &clicks x
 join userrule u1 on u1.userid=x.userid and r=rule
 join temp_user u2 on u2.userid=targetuserid
-where created between &trial_start_date and &currenttime;
+where x.created between &trial_start_date and &currenttime;
 
 -- Kisses which occured during the trial period
 insert into temp_kiss
