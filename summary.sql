@@ -4,7 +4,7 @@ def groupings='rule, week, gender, placement'
 -- #recommendations generated
 
 def measures='count(r) generated'
-def fields='r, created, u1.gender g'
+def fields='r, x.created created, u1.gender g'
 def tbl=temp_recom
 def aux=''
 def cond=''
@@ -32,7 +32,7 @@ def tbl=temp_click
 -- #slice kisses
 
 def measures='count(r) kisses'
-def fields='r, created, u1.gender g'
+def fields='r, x.created created, u1.gender g'
 def tbl=temp_kiss
 def joins='r=rule and getweek(created) = week and g=gender'
 
@@ -79,7 +79,7 @@ def cond='and positivereply = 1'
 -- #slice channels
 
 def measures='count(r) channels'
-def fields='r, created, u1.gender g'
+def fields='r, x.created created, u1.gender g'
 def tbl=temp_channel
 def aux=''
 def cond=''
@@ -138,7 +138,7 @@ def joins='r=rule and getweek(created) = week and g=gender'
 -- (only for not null replies)
 
 def measures='nvl(avg(t), 0) avgk2r, nvl(median(t), 0) medk2r, nvl(stddev(t), 0) stdk2r'
-def fields='x.userid, x.targetuserid, r, created, u1.gender g, interval2float(replydate-created) t'
+def fields='x.userid, x.targetuserid, r, created, u1.gender g, interval2float(replydate-x.created) t'
 def aux=''
 def cond='and positivereply is not null'
 def grp=''
