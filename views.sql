@@ -16,8 +16,10 @@ from temp_user;
 
 -- Distinct pairings of rules and targetuserids, for convenience
 create or replace view candidates as
-select distinct r rule, targetuserid
-from temp_impression i join userrule r on r.userid=i.userid;
+select distinct r rule, targetuserid from temp_impression i
+join userrule r on r.userid=i.userid where r between 0 and 3
+union select distinct r rule, targetuserid from temp_recom i
+join userrule r on r.userid=i.userid where r between 4 and 9;
 
 -- lhs2rhs kiss interactions for non-recommendees
 create or replace view lhs2rhs0 as

@@ -9,6 +9,10 @@ select userid, gender_prid, case when u is not null then 1 else 0 end, creationd
 from &account_table left join (
   select distinct userid u from &impressions
   where created between &trial_start_date and &trial_end_date
+    and rule between 0 and 3
+  union select distinct userid u from &recom_table
+  where created between &trial_start_date and &trial_end_date
+    and rule between 4 and 9
 ) on u=userid where creationdate < &trial_end_date
   and hlastaction > trunc(&trial_start_date - &interval_days);
 
