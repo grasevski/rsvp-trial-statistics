@@ -1,8 +1,8 @@
 -- Views for calculating new, act0, pop0 and act0_pop0 stats
 
--- List of rule numbers, 1..9
+-- List of rule numbers, 0..9
 create or replace view rule as
-select rownum rule from dual connect by level <= 9;
+select rownum-1 rule from dual connect by level <= 10;
 
 -- List of gender numbers, 134..135
 create or replace view gender as

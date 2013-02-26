@@ -1,8 +1,3 @@
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -34,7 +29,7 @@ final class RsvpTailStats {
 
   public static void main(final String[] args) {
     final int NUM_FIELDS = 6, INTERVAL_DAYS = 28, WEEK_LENGTH = 7;
-    final String stmt = "select rule, gender, placement, count(distinct u) nLHS_%1$s, count(distinct t) nRHS_%1$s, count(*) %1$s"
+    final String stmt = "select rule, gender, placement, count(distinct u) nLHS_%1$s, count(distinct t) nRHS_%1$s, count(u) %1$s"
       + " from (select * from rule, gender, placement)"
       + " left join (select u1.userid u, u2.userid t, r, u1.gender g, placement p from %2$s x join userrule u1 on u1.userid=x.userid join temp_user u2 on u2.userid=targetuserid where %3$s)"
       + " on r=rule and g=gender and p=placement"
@@ -55,7 +50,6 @@ final class RsvpTailStats {
       new RsvpQuery("all2act0_pop0", String.format("not exists (select * from temp_activity where userid=u2.userid and (sent between x.created - %1$s and x.created or received between x.created - %1$s and x.created))", INTERVAL_DAYS))
     };
     final String conStr = "jdbc:oracle:thin:@SMARTR510-SERV1:1521:orcl";
-    final String filename = args[2] + "/%s_%s.csv";
     final List<RsvpTable> tables = new ArrayList<RsvpTable>();
     final Scanner sc = new Scanner(System.in);
     while (sc.hasNextLine()) {
@@ -66,32 +60,21 @@ final class RsvpTailStats {
       final Connection con = DriverManager.getConnection(conStr, args[0], args[1]);
       final Statement sth = con.createStatement();
       for (RsvpTable table : tables) {
-        System.out.println(table.name);
         for (RsvpQuery query : queries) {
-          System.out.println("  " + query.name);
-          BufferedWriter bw = null;
-          final String f = String.format(filename, table.name, query.name);
-          try {bw = new BufferedWriter(new FileWriter(f));}
-          catch (final IOException e) {
-            throw new RuntimeException(e);
-          }
-          final PrintWriter out = new PrintWriter(bw);
           final String st = String.format(stmt, query.name, table.tablename, query.cond);
           final ResultSet rs = sth.executeQuery(st);
           final ResultSetMetaData md = rs.getMetaData();
-          out.print(md.getColumnLabel(1));
+          System.out.print(md.getColumnLabel(1));
           for (int i=2; i<=NUM_FIELDS; ++i)
-            out.print(',' + md.getColumnLabel(i));
-          out.println();
+            System.out.print(',' + md.getColumnLabel(i));
+          System.out.println();
           while (rs.next()) {
-            out.print(rs.getString(1));
+            System.out.print(rs.getString(1));
             for (int i=2; i<=NUM_FIELDS; ++i)
-              out.print(',' + rs.getString(i));
-            out.println();
+              System.out.print(',' + rs.getString(i));
+            System.out.println();
           }
-          try {bw.close();} catch (final IOException e) {
-            throw new RuntimeException(e);
-          }
+          System.out.println();
         }
       }
     } catch (final SQLException e) {throw new RuntimeException(e);}
