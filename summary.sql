@@ -63,7 +63,7 @@ def cond='&cond and positivereply = 1'
 
 def measures='count(r) recommendedkisses'
 def fields='&fields, placement p'
-def aux='join temp_unique_click y on y.userid=x.userid and y.targetuserid=x.targetuserid and c < created'
+def aux='join temp_unique_click y on y.userid=x.userid and y.targetuserid=x.targetuserid and c < x.created'
 def cond=''
 def joins='&joins and p=placement'
 
@@ -98,7 +98,7 @@ def cond='and u1.isrecommendee = 1'
 
 def measures='count(r) recommendedchannels'
 def fields='&fields, placement p'
-def aux='join temp_unique_click y on y.userid=x.userid and y.targetuserid=x.targetuserid and c < created'
+def aux='join temp_unique_click y on y.userid=x.userid and y.targetuserid=x.targetuserid and c < x.created'
 def cond=''
 def joins='&joins and p=placement'
 
@@ -138,7 +138,7 @@ def joins='r=rule and getweek(created) = week and g=gender'
 -- (only for not null replies)
 
 def measures='nvl(avg(t), 0) avgk2r, nvl(median(t), 0) medk2r, nvl(stddev(t), 0) stdk2r'
-def fields='x.userid, x.targetuserid, r, created, u1.gender g, interval2float(replydate-x.created) t'
+def fields='x.userid, x.targetuserid, r, x.created, u1.gender g, interval2float(replydate-x.created) t'
 def aux=''
 def cond='and positivereply is not null'
 def grp=''

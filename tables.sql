@@ -9,6 +9,7 @@ drop table temp_impression purge;
 drop table temp_click purge;
 drop table temp_kiss purge;
 drop table temp_channel purge;
+drop table temp_activity purge;
 drop table temp_user purge;
 drop table temp_bool purge;
 drop table temp_rule purge;

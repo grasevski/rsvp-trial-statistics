@@ -33,18 +33,18 @@ group by rule, gender, week order by rule, gender, week;
 -- period, avg, median, stddev
 select rule, gender, week, nvl(avg(kiss), 0) avgkiss, nvl(median(kiss), 0) medkiss, nvl(stddev(kiss), 0) stdkiss
 from rg2 left join (
-  select u.userid, r, gender g, getweek(created) w, count(*) kiss
+  select u.userid, r, gender g, getweek(k.created) w, count(*) kiss
   from temp_kiss k join userrule u on u.userid=k.userid
-  group by u.userid, r, gender, getweek(created)
+  group by u.userid, r, gender, getweek(k.created)
 ) on r=rule and g=gender and w=week
 group by rule, gender, week order by rule, gender, week;
 
 -- Count of positive kisses as above
 select rule, gender, week, nvl(avg(kiss), 0) avgkiss, nvl(median(kiss), 0) medkiss, nvl(stddev(kiss), 0) stdkiss
 from rg2 left join (
-  select u.userid, r, gender g, getweek(created) w, count(*) kiss
+  select u.userid, r, gender g, getweek(k.created) w, count(*) kiss
   from temp_kiss k join userrule u on u.userid=k.userid
   where positivereply = 1
-  group by u.userid, r, gender, getweek(created)
+  group by u.userid, r, gender, getweek(k.created)
 ) on r=rule and g=gender and w=week
 group by rule, gender, week order by rule, gender, week;

@@ -62,6 +62,9 @@ join temp_user u1 on u1.userid=initiatinguserid
 join temp_user u2 on u2.userid=targetuserid
 where opendate between &trial_start_date and &currenttime;
 
+@@tailTables.sql
+@@tailViews.sql
+
 commit;
 
 quit
