@@ -1,0 +1,5 @@
+click,temp_click
+kiss,kissscore
+kiss_t,kissscore_t
+channel,channelscore
+impression,temp_impression

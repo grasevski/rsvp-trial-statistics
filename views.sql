@@ -34,10 +34,9 @@ select positivereply, r, u1.gender g1, u2.gender g2, u1.userid u, u2.userid t, c
 from temp_kiss k join userrule u1 on u1.userid=k.userid
 join temp_user u2 on u2.userid=k.targetuserid
 left join (select userid, targetuserid, min(created) c
-  from temp_click group by userid, targetuserid) c
-on c.userid=u1.userid
-  and c.targetuserid=u2.userid
-  and c.c < k.created;
+  from temp_click group by userid, targetuserid
+) c on c.userid=u1.userid and c.targetuserid=u2.userid
+where c.c <= k.created;
 
 -- lhs2q kiss interactions
 create or replace view lhs2q as
@@ -57,7 +56,7 @@ on c.targetuserid=u2.userid and rule=r;
 create or replace view rg as
 select r.rule rule, w.rule week, boolid+134 gender, p.rule placement
 from temp_rule r, temp_rule w, temp_bool, temp_rule p
-where w.rule between 1 and 6 and p.rule < 4;
+where p.rule < 4 and w.rule between 1 and 6;
 
 -- Groupings for the contacts data
 create or replace view rg2 as
@@ -82,14 +81,45 @@ create or replace view temp_unique_click as
 select userid, targetuserid, placement, min(created) c
 from temp_click group by userid, targetuserid, placement;
 
--- Earliest clicks including scores
-create or replace view clickscore as select u, t, c, score from (
-  select c.userid u, c.targetuserid t, max(c.created) c
-  from temp_click c join temp_kiss k on k.userid=c.userid
-    and k.targetuserid=c.targetuserid
-    and c.created < k.created
-  group by c.userid, c.targetuserid
-) join temp_click on userid=u and targetuserid=t and created=c;
+-- These kisses are used for the "days from x to kiss" calculations
+create or replace view temp_unique_kiss as
+select userid, targetuserid, min(created) c
+from temp_kiss group by userid, targetuserid;
+
+-- These channels are used for the "days from x to channel"
+-- calculations
+create or replace view temp_unique_channel as
+select userid, targetuserid, min(created) c
+from temp_channel group by userid, targetuserid;
+
+-- Kisses, augmented with most recent score
+create or replace view kissscore as
+select userid, targetuserid, positivereply, k.created created, score
+from (
+  select k.userid u, k.targetuserid t, positivereply, k.created created, max(c.created) c
+  from temp_kiss k join temp_click c
+  on c.userid=k.userid and c.targetuserid=k.targetuserid
+  where c.created <= k.created
+  group by k.userid, k.targetuserid, k.positivereply, k.created
+) k join temp_click c on userid=u and targetuserid=t
+where c.created=c;
+
+-- As above, with successful kisses
+create or replace view kissscore_t as
+select userid, targetuserid, created, score
+from kissscore where positivereply=1;
+
+-- Channels, augmented with most recent score
+create or replace view channelscore as
+select userid, targetuserid, k.created created, score
+from temp_click c join (
+  select k.userid u, k.targetuserid t, k.created created, max(c.created) c
+  from temp_channel k join temp_click c
+  on c.userid=k.userid and c.targetuserid=k.targetuserid
+  where c.created <= k.created
+  group by k.userid, k.targetuserid, k.created
+) k on u=userid and t=targetuserid
+where c=c.created;
 
 -- Returns the trial week of the given time
 create or replace function getweek(t in timestamp) return integer as

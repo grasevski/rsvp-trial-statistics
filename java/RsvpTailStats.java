@@ -1,3 +1,7 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -56,25 +60,32 @@ final class RsvpTailStats {
       final String[] line = sc.nextLine().split(",");
       tables.add(new RsvpTable(line[0], line[1]));
     }
+    PrintWriter out = null;
+    try {
+      final FileWriter fw = new FileWriter(args[2]);
+      out = new PrintWriter(new BufferedWriter(fw));
+    } catch (final IOException e) {throw new RuntimeException(e);}
     try {
       final Connection con = DriverManager.getConnection(conStr, args[0], args[1]);
       final Statement sth = con.createStatement();
       for (RsvpTable table : tables) {
+        System.out.println(table.name);
         for (RsvpQuery query : queries) {
+          System.out.println("  " + query.name);
           final String st = String.format(stmt, query.name, table.tablename, query.cond);
           final ResultSet rs = sth.executeQuery(st);
           final ResultSetMetaData md = rs.getMetaData();
-          System.out.print(md.getColumnLabel(1));
+          out.print(md.getColumnLabel(1));
           for (int i=2; i<=NUM_FIELDS; ++i)
-            System.out.print(',' + md.getColumnLabel(i));
-          System.out.println();
+            out.print(',' + md.getColumnLabel(i));
+          out.println();
           while (rs.next()) {
-            System.out.print(rs.getString(1));
+            out.print(rs.getString(1));
             for (int i=2; i<=NUM_FIELDS; ++i)
-              System.out.print(',' + rs.getString(i));
-            System.out.println();
+              out.print(',' + rs.getString(i));
+            out.println();
           }
-          System.out.println();
+          out.println();
         }
       }
     } catch (final SQLException e) {throw new RuntimeException(e);}

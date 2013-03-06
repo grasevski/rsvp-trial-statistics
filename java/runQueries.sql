@@ -1,4 +1,8 @@
 -- Run trial statistics queries
+spool unittest
+@@unittest.sql
+spool trial2Verification
+@@trial2Verification.sql
 spool summary
 @@../summary.sql
 spool score

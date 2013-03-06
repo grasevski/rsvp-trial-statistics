@@ -10,7 +10,7 @@ select rownum+133 gender from dual connect by level <= 2;
 
 -- List of placements, 1..6
 create or replace view placement as
-select rownum placement from dual connect by level <= 9;
+select rownum-1 placement from dual connect by level <= 4;
 
 -- Recommendations generated, including impressions for rules 0-3
 create or replace view tail_generated as
@@ -35,29 +35,32 @@ from temp_click;
 
 -- Kisses, from clicks
 create or replace view tail_kissed as
-select userid, targetuserid, placement, created from (
-  select k.userid userid, k.targetuserid targetuserid, placement, k.created created, max(c.created)
+select userid, targetuserid, placement, k.created created from (
+  select k.userid u, k.targetuserid t, k.created created, max(c.created) c
   from temp_kiss k join temp_click c
   on k.userid=c.userid and k.targetuserid=c.targetuserid
-  where c.created < k.created
-  group by k.userid, k.targetuserid, placement, k.created);
+  where c.created <= k.created
+  group by k.userid, k.targetuserid, k.created) k
+join temp_click c on userid=u and targetuserid=t where c.created=c;
 
 -- Successful kisses
 create or replace view tail_kissed_t as
-select userid, targetuserid, placement, created from (
-  select k.userid userid, k.targetuserid targetuserid, placement, k.created created, max(c.created)
+select userid, targetuserid, placement, k.created created from (
+  select k.userid u, k.targetuserid t, k.created created, max(c.created) c
   from temp_kiss k join temp_click c
   on k.userid=c.userid and k.targetuserid=c.targetuserid
-  where c.created < k.created and positivereply = 1
-  group by k.userid, k.targetuserid, placement, k.created);
+  where c.created <= k.created and positivereply = 1
+  group by k.userid, k.targetuserid, k.created) k
+join temp_click c on userid=u and targetuserid=t where c.created=c;
 
 -- Channels, from clicks
 create or replace view tail_channeled as
-select userid, targetuserid, placement, created from (
-  select k.userid userid, k.targetuserid targetuserid, placement, k.created created, max(c.created)
+select userid, targetuserid, placement, k.created created from (
+  select k.userid u, k.targetuserid t, k.created created, max(c.created) c
   from temp_channel k join temp_click c
   on k.userid=c.userid and k.targetuserid=c.targetuserid
-  where c.created < k.created
-  group by k.userid, k.targetuserid, placement, k.created);
+  where c.created <= k.created
+  group by k.userid, k.targetuserid, k.created) k
+join temp_click c on userid=u and targetuserid=t where c.created=c;
 
 commit;

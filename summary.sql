@@ -9,7 +9,6 @@ def tbl=temp_recom
 def aux=''
 def cond=''
 def joins='r=rule and getweek(created)=week and g=gender'
-def grp=''
 
 @@query.sql
 
@@ -63,8 +62,8 @@ def cond='&cond and positivereply = 1'
 
 def measures='count(r) recommendedkisses'
 def fields='&fields, placement p'
-def aux='join temp_unique_click y on y.userid=x.userid and y.targetuserid=x.targetuserid and c < x.created'
-def cond=''
+def aux='join temp_unique_click y on y.userid=x.userid and y.targetuserid=x.targetuserid'
+def cond='and c <= x.created'
 def joins='&joins and p=placement'
 
 @@query.sql
@@ -72,7 +71,7 @@ def joins='&joins and p=placement'
 -- #positive kisses from recommendations (after clicks)
 
 def measures='count(r) recommendedkisses_t'
-def cond='and positivereply = 1'
+def cond='&cond and positivereply = 1'
 
 @@query.sql
 
@@ -98,8 +97,8 @@ def cond='and u1.isrecommendee = 1'
 
 def measures='count(r) recommendedchannels'
 def fields='&fields, placement p'
-def aux='join temp_unique_click y on y.userid=x.userid and y.targetuserid=x.targetuserid and c < x.created'
-def cond=''
+def aux='join temp_unique_click y on y.userid=x.userid and y.targetuserid=x.targetuserid'
+def cond='and c <= x.created'
 def joins='&joins and p=placement'
 
 @@query.sql
@@ -107,18 +106,17 @@ def joins='&joins and p=placement'
 -- days from recommendation to impression
 
 def measures='nvl(avg(t), 0) avgr2i, nvl(median(t), 0) medr2i, nvl(stddev(t), 0) stdr2i'
-def fields='x.userid, x.targetuserid, r, u1.gender g, x.placement p, interval2float(x.created-y.c) t, min(x.created) created'
-def tbl=temp_impression
+def fields='x.userid, x.targetuserid, r, u1.gender g, x.placement p, interval2float(x.c-y.c) t, x.c created'
+def tbl=temp_unique_impression
 def aux='join temp_unique_recom y on y.userid=x.userid and y.targetuserid=x.targetuserid'
-def cond='and y.c < x.created'
-def grp='group by x.userid, x.targetuserid, r, u1.gender, x.placement, x.created-y.c'
+def cond='and y.c <= x.c'
 
 @@query.sql
 
 -- days from impression to click
 
 def measures='nvl(avg(t), 0) avgi2c, nvl(median(t), 0) medi2c, nvl(stddev(t), 0) stdi2c'
-def tbl=temp_click
+def tbl=temp_unique_click
 def aux='join temp_unique_impression y on y.userid=x.userid and y.targetuserid=x.targetuserid and y.placement=x.placement'
 
 @@query.sql
@@ -126,10 +124,9 @@ def aux='join temp_unique_impression y on y.userid=x.userid and y.targetuserid=x
 -- days from click to contact sent
 
 def measures='nvl(avg(t), 0) avgc2k, nvl(median(t), 0) medc2k, nvl(stddev(t), 0) stdc2k'
-def fields='x.userid, x.targetuserid, r, u1.gender g, interval2float(x.created-y.c) t, min(x.created) created'
-def tbl=temp_kiss
+def fields='x.userid, x.targetuserid, r, u1.gender g, interval2float(x.c-y.c) t, x.c created'
+def tbl=temp_unique_kiss
 def aux='join temp_unique_click y on y.userid=x.userid and y.targetuserid=x.targetuserid'
-def grp='group by x.userid, x.targetuserid, r, u1.gender, x.created-y.c'
 def joins='r=rule and getweek(created) = week and g=gender'
 
 @@query.sql
@@ -139,9 +136,9 @@ def joins='r=rule and getweek(created) = week and g=gender'
 
 def measures='nvl(avg(t), 0) avgk2r, nvl(median(t), 0) medk2r, nvl(stddev(t), 0) stdk2r'
 def fields='x.userid, x.targetuserid, r, x.created, u1.gender g, interval2float(replydate-x.created) t'
+def tbl=temp_kiss
 def aux=''
 def cond='and positivereply is not null'
-def grp=''
 
 @@query.sql
 
@@ -164,11 +161,10 @@ def cond='and positivereply = 0'
 -- days from impression to channel opened
 
 def measures='nvl(avg(t), 0) avgi2ch, nvl(median(t), 0) medi2ch, nvl(stddev(t), 0) stdi2ch'
-def fields='x.userid, x.targetuserid, r, u1.gender g, placement p, interval2float(x.created-y.c) t, min(x.created) created'
-def tbl=temp_channel
+def fields='x.userid, x.targetuserid, r, u1.gender g, placement p, interval2float(x.c-y.c) t, x.c created'
+def tbl=temp_unique_channel
 def aux='join temp_unique_impression y on y.userid=x.userid and y.targetuserid=x.targetuserid'
-def cond='and y.c < x.created'
-def grp='group by x.userid, x.targetuserid, r, u1.gender, placement, x.created-y.c'
+def cond='and y.c <= x.c'
 def joins='&joins and p=placement'
 
 @@query.sql

@@ -15,9 +15,9 @@ def week=2
 -- Results
 
 -- pool
-select count(*) pool from (
-  select case when targetuserid is not null then 1 else 0 end c
-  from userrule left join candidates on rule=r
+select count(distinct userid) pool from (
+  select userid, case when targetuserid is not null then 1 else 0 end c
+  from userrule left join candidates on targetuserid=userid
   where r=&rule and gender=&gender and isrecommendee=&isrecommendee
 ) where c=&iscandidate;
 
@@ -74,7 +74,7 @@ select score, count(*)
 from temp_kiss x join userrule u on u.userid=x.userid
 join clickscore on u=x.userid and t=x.targetuserid
 where gender = &gender and getweek(x.created) = &week and r = &rule
-  and c < x.created
+  and c <= x.created
 group by score order by score;
 
 --kiss_t
@@ -82,7 +82,7 @@ select score, count(*)
 from temp_kiss x join userrule u on u.userid=x.userid
 join clickscore on u=x.userid and t=x.targetuserid
 where gender = &gender and getweek(x.created) = &week and r = &rule
-  and c < x.created and positivereply = 1
+  and c <= x.created and positivereply = 1
 group by score order by score;
 
 --channel
@@ -90,7 +90,7 @@ select score, count(*)
 from temp_channel x join userrule u on u.userid=x.userid
 join clickscore on u=x.userid and t=x.targetuserid
 where gender = &gender and getweek(x.created) = &week and r = &rule
-  and c < x.created
+  and c <= x.created
 group by score order by score;
 
 --impression
