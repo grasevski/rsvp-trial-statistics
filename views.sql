@@ -34,9 +34,8 @@ select positivereply, r, u1.gender g1, u2.gender g2, u1.userid u, u2.userid t, c
 from temp_kiss k join userrule u1 on u1.userid=k.userid
 join temp_user u2 on u2.userid=k.targetuserid
 left join (select userid, targetuserid, min(created) c
-  from temp_click group by userid, targetuserid
-) c on c.userid=u1.userid and c.targetuserid=u2.userid
-where c.c <= k.created;
+  from temp_click where c <= k.created group by userid, targetuserid
+) c on c.userid=u1.userid and c.targetuserid=u2.userid;
 
 -- lhs2q kiss interactions
 create or replace view lhs2q as
