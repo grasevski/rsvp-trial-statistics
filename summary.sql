@@ -1,3 +1,14 @@
+-- Summary statistics
+
+-- This would probably be better done as writing out each individual
+-- query, with some global parameters at the top. This can be
+-- refactored by prepending "explain plan for" to the query in
+-- query.sql. Then all of the actual queries will be printed out
+-- when running this script, and they can be pasted here in place of
+-- all this text substitution spaghetti code. Each query can then be
+-- edited to have globally defined parameters up the top which
+-- adhere to the DRY principle.
+
 -- Global constants
 def groupings='rule, week, gender, placement'
 
